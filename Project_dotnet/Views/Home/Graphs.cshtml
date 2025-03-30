@@ -1,0 +1,111 @@
+﻿@{
+    ViewData["Title"] = "Expenses";
+}
+@model IEnumerable<Expense>
+
+
+
+<div class="table-box">
+    <!-- Two Graphs Below the Table -->
+
+    <h4>Cumulative Total Expenses</h4>
+    <canvas id="cumulativeChart" style="height: 400px;"></canvas>
+
+    <h4>Daily Total Expenses</h4>
+    <canvas id="dailyChart" style="height: 400px;"></canvas>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+        var cumulativeData = JSON.parse('@Html.Raw(ViewBag.GraphDataCumulative)');
+        var dailyData = JSON.parse('@Html.Raw(ViewBag.GraphDataDaily)');
+
+        // Prepare labels and data for the cumulative chart
+        var cumulativeLabels = cumulativeData.map(item => item.Date);
+        var cumulativeExpenses = cumulativeData.map(item => item.CumulativeTotal);
+
+        // Prepare labels and data for the daily chart
+        var dailyLabels = dailyData.map(function (item) {
+            return new Date(item.Date).toISOString().split('T')[0]; // Get only the date part
+        });
+
+        var dailyExpenses = dailyData.map(function (item) {
+            return item.Total; // The daily expenses
+        });
+
+        // Create the cumulative expenses chart
+        // Get the canvas elements by their IDs
+        var cumulativeCtx = document.getElementById('cumulativeChart').getContext('2d');
+        var dailyCtx = document.getElementById('dailyChart').getContext('2d');
+
+        // Example of initializing the cumulative chart
+        new Chart(cumulativeCtx, {
+            type: 'line',
+            data: {
+                labels: cumulativeLabels, // Ensure cumulativeLabels is defined
+                datasets: [{
+                    label: 'Cumulative Total Expenses',
+                    data: cumulativeExpenses, // Ensure cumulativeExpenses is defined
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'category',
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount (€)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Initialize the daily chart in a similar way
+        new Chart(dailyCtx, {
+            type: 'line',
+            data: {
+                labels: dailyLabels, // Ensure dailyLabels is defined
+                datasets: [{
+                    label: 'Daily Total Expenses',
+                    data: dailyExpenses, // Ensure dailyExpenses is defined
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'category',
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Amount (€)'
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+</div>
